@@ -1,0 +1,15 @@
+{
+  "name": "component-create",
+  "description": "create(1) command for component(1)",
+  "version": "0.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "component-consoler": "^1.0.0",
+    "commander": "^2.2.0",
+    "mkdirp": "~0.3.5"
+  },
+  "devDependencies": {
+    "minstache": "^1.1.0"
+  },
+  "repository": "component/create.js"
+}
