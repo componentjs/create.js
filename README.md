@@ -1,6 +1,28 @@
-# Component Create
+# component-create
 
-The `component-create(1)` command as its own separate module.
+`component-create(1)` scaffolds out components.
+
+## Installation
+
+```bash
+$ npm install -g component-create
+```
+
+## Usage
+
+via `--help`
+
+```bash
+$ component create -h
+
+  Usage: component-create [dir]
+
+  Options:
+
+    -h, --help   output usage information
+    -l, --local  create a local private component
+```
+
 
 ## License
 
