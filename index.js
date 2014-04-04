@@ -8,8 +8,10 @@ var program = require('commander');
 var mkdir = require('mkdirp').sync;
 var path = require('path');
 var fs = require('fs');
+var prompt = require('prompt');
 
 var readme = require('./templates/readme');
+var schema = require('./lib/schema');
 var join = path.join;
 var read = fs.readFileSync;
 var readdir = fs.readdirSync;
@@ -59,94 +61,100 @@ function write(path, str) {
 // private / public prompts
 
 if (local) {
-  var prompt = {
-    name: 'name: ',
-    desc: 'description: ',
-    js: 'does this component have js? ',
-    css: 'does this component have css? ',
-    html: 'does this component have html? '
+  var prop = {
+    properties: {
+      name: {
+        name: 'name: ',
+        required: true
+      }  
+    } 
   };
 } else {
-  var prompt = {
-    repo: 'repo (username/project): ',
-    desc: 'description: ',
-    js: 'does this component have js? ',
-    css: 'does this component have css? ',
-    html: 'does this component have html? '
+  var prop = {
+    properties: {
+      repo: {
+        name: 'repo (username/project): ',
+        validator: /([A-Za-z0-9_]{1,15})\/([A-Za-z]{1,20})/,
+        warning: 'repo must be <username>/<project>',
+        required: true
+      }  
+    }  
   };
 }
 
 // prompt
+prompt.start();
+prompt.addProperties(schema, [prop], function(err) {
+  prompt.get(schema, function(err, obj){
+    if (local) {
+      var name = schema.name;
+    } else {
+      // repo
+      var repo = schema.repo.split('/');
+      
+      // name
+      var name = repo[1];
+    }
 
-program.prompt(prompt, function(obj){
-  if (local) {
-    var name = obj.name;
-  } else {
-    // repo
-    var repo = obj.repo.split('/');
-    if (2 != repo.length) throw new Error('repo must be <username>/<project>');
+    // populate json
+    conf.name = obj.name = name;
+    if (!local) conf.repo = repo.join('/');
+    conf.description = obj.desc;
+    if (!local) conf.version = "0.0.1";
+    if (!local) conf.keywords = [];
+    conf.dependencies = {};
+    conf.development = {};
+    if (!local) conf.license = "MIT";
 
-    // name
-    var name = repo[1];
-  }
+    // dir
+    console.log();
+    utils.log('create', dir);
+    mkdir(dir);
 
-  // populate json
-  conf.name = obj.name = name;
-  if (!local) conf.repo = repo.join('/');
-  conf.description = obj.desc;
-  if (!local) conf.version = "0.0.1";
-  if (!local) conf.keywords = [];
-  conf.dependencies = {};
-  conf.development = {};
-  if (!local) conf.license = "MIT";
+    // js
+    if (bool(obj.js)) {
+      conf.main = "index.js";
+      conf.scripts = ["index.js"];
+      write(join(dir, 'index.js'), '');
+    }
 
-  // dir
-  console.log();
-  utils.log('create', dir);
-  mkdir(dir);
+    // html
+    if (bool(obj.html)) {
+      conf.templates = ['template.html'];
+      write(join(dir, 'template.html'), '');
+    }
 
-  // js
-  if (bool(obj.js)) {
-    conf.main = "index.js";
-    conf.scripts = ["index.js"];
-    write(join(dir, 'index.js'), '');
-  }
+    // css
+    if (bool(obj.css)) {
+      conf.styles = [name + '.css'];
+      write(join(dir, name + '.css'), '');
+    }
 
-  // html
-  if (bool(obj.html)) {
-    conf.templates = ['template.html'];
-    write(join(dir, 'template.html'), '');
-  }
+    // makefile
+    if (!local) write(join(dir, 'Makefile'), createMakefile(obj));
 
-  // css
-  if (bool(obj.css)) {
-    conf.styles = [name + '.css'];
-    write(join(dir, name + '.css'), '');
-  }
+    // readme
+    obj.year = new Date().getUTCFullYear().toString();
+    if (!local) write(join(dir, 'Readme.md'), readme(obj));
 
-  // makefile
-  if (!local) write(join(dir, 'Makefile'), createMakefile(obj));
+    // changelog
+    if (!local) write(join(dir, 'History.md'), '');
 
-  // readme
-  obj.year = new Date().getUTCFullYear().toString();
-  if (!local) write(join(dir, 'Readme.md'), readme(obj));
+    // .gitignore
+    if (!local) write(join(dir, '.gitignore'), 'components\nbuild\n');
 
-  // changelog
-  if (!local) write(join(dir, 'History.md'), '');
+    // write component.json
+    write(join(dir, 'component.json'), JSON.stringify(conf, null, 2));
 
-  // .gitignore
-  if (!local) write(join(dir, '.gitignore'), 'components\nbuild\n');
-
-  // write component.json
-  write(join(dir, 'component.json'), JSON.stringify(conf, null, 2));
-
-  console.log();
-  process.exit();
+    console.log();
+    process.exit();
+  });
 });
+
 
 /**
  * Boolean from `str`.
- */
+*/ 
 
 function bool(str) {
   return /^y(es)?/i.test(str);
