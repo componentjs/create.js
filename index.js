@@ -74,6 +74,7 @@ if (local) {
     properties: {
       repo: {
         name: 'repo (username/project): ',
+        validator: /([A-Za-z0-9_]{1,15})\/([A-Za-z]{1,20})/,
         warning: 'repo must be <username>/<project>',
         required: true
       }  
@@ -90,8 +91,7 @@ prompt.addProperties(schema, [prop], function(err) {
     } else {
       // repo
       var repo = schema.repo.split('/');
-      if (2 != repo.length) throw new Error('repo must be <username>/<project>');
-
+      
       // name
       var name = repo[1];
     }
