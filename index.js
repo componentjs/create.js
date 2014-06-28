@@ -120,8 +120,15 @@ program.prompt(prompt, function(obj){
 
   // css
   if (bool(obj.css)) {
-    conf.styles = [name + '.css'];
-    write(join(dir, name + '.css'), '');
+    var css;
+    if (!name) {
+      css = 'style.css';
+    } else {
+      css = name + '.css';
+    }
+    
+    conf.styles = [css];
+    write(join(dir, css), '');
   }
 
   // makefile
