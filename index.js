@@ -84,10 +84,10 @@ program.prompt(prompt, function(obj){
   } else {
     // repo
     var repo = obj.repo.split('/');
-    if (2 != repo.length) throw new Error('repo must be <username>/<project>');
-
     // name
     var name = repo[1];
+
+    if (2 != repo.length || 1 != name.length) throw new Error('repo must be <username>/<project>');
   }
 
   // populate json
@@ -120,8 +120,15 @@ program.prompt(prompt, function(obj){
 
   // css
   if (bool(obj.css)) {
-    conf.styles = [name + '.css'];
-    write(join(dir, name + '.css'), '');
+    var css;
+    if (!name) {
+      css = 'style.css';
+    } else {
+      css = name + '.css';
+    }
+    
+    conf.styles = [css];
+    write(join(dir, css), '');
   }
 
   // makefile
