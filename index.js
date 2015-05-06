@@ -163,14 +163,7 @@ function createMakefile(obj) {
   buf += 'build: components';
   if (bool(obj.js)) buf += ' index.js';
   if (bool(obj.css)) buf += ' ' + obj.name + '.css';
-  if (bool(obj.html)) buf += ' template.js';
   buf += '\n\t@component build --dev\n\n';
-
-  // template.js target
-  if (bool(obj.html)) {
-    buf += 'template.js: template.html\n';
-    buf += '\t@component convert $<\n\n';
-  }
 
   // components target
   buf += 'components: component.json\n';
@@ -178,7 +171,7 @@ function createMakefile(obj) {
 
   // clean phony
   buf += 'clean:\n';
-  buf += '\trm -fr build components template.js\n\n';
+  buf += '\trm -fr build components\n\n';
 
   // PHONY
   buf += '.PHONY: clean\n';
