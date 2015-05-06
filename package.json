@@ -1,7 +1,7 @@
 {
   "name": "component-create",
   "description": "create(1) command for component(1)",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "MIT",
   "dependencies": {
     "component-consoler": "^1.0.0",
